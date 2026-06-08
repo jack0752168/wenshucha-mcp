@@ -1,0 +1,37 @@
+{
+  "name": "wenshucha-mcp",
+  "version": "0.1.0",
+  "description": "文书查 / SinoVerdict MCP server — 1.1M+ structured Chinese labor-arbitration judgments for legal AI",
+  "type": "module",
+  "bin": {
+    "wenshucha-mcp": "./bin/wenshucha-mcp.mjs"
+  },
+  "files": [
+    "src",
+    "bin",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node bin/wenshucha-mcp.mjs",
+    "test:list": "node scripts/test-list-tools.mjs"
+  },
+  "keywords": [
+    "mcp",
+    "legal",
+    "law",
+    "china",
+    "judgments",
+    "case-law",
+    "wenshucha",
+    "sinoverdict"
+  ],
+  "author": "深圳星谱网络科技有限公司",
+  "license": "Proprietary",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "homepage": "https://tob.wenshucha.com/tob/api-trial"
+}

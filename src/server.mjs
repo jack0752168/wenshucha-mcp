@@ -94,7 +94,7 @@ const TOOLS = [
   {
     name: "case_stats",
     description:
-      "按 dimension 切片回傳勞動爭議判例聚合統計。每個 cell 含案件數、p25/中位/p75 金額、勝訴率、平均月薪。",
+      "按 dimension 切片回傳勞動爭議判例聚合統計。每個 cell 含案件數、p25/中位/p75 金額、平均月薪(勝訴率試用版暫略)。",
     inputSchema: {
       type: "object",
       properties: {
@@ -104,6 +104,23 @@ const TOOLS = [
           description: "切片維度:province=省份 / term_reason=解雇原因 / years_bucket=工齡分桶",
           default: "province",
         },
+      },
+    },
+  },
+  {
+    name: "search_judgments",
+    description:
+      "全案由通用檢索:在 120 萬+ 中國裁判文書(覆蓋 1200+ 案由,如民間借貸/買賣合同/信用卡/機動車交通事故/勞動爭議/刑事等)中按關鍵詞 + 結構化條件檢索,返回標題/法院/案由/日期/案號 + 中國裁判文書網原文連結。與 search_cases 區別:search_cases 僅勞動爭議且帶量化(金額/勝率),search_judgments 是全案由通用檢索。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        q: { type: "string", description: "標題/當事人關鍵詞,空格分詞,如「工商銀行 信用卡」" },
+        reason: { type: "string", description: "案由,如 民間借貸糾紛/買賣合同糾紛/勞動爭議/機動車交通事故責任糾紛" },
+        province: { type: "string", description: "省份,如 廣東省/北京市" },
+        court: { type: "string", description: "法院名稱片段" },
+        year_from: { type: "number", description: "判決年份起" },
+        year_to: { type: "number", description: "判決年份止" },
+        limit: { type: "number", description: "返回條數,默認 20,最多 50" },
       },
     },
   },
@@ -146,6 +163,10 @@ async function handleTool(name, args) {
   if (name === "case_stats") {
     const dim = args?.dimension || "province";
     const data = await apiFetch(`/api/v1/stats?dimension=${encodeURIComponent(dim)}`);
+    return toolResult(data);
+  }
+  if (name === "search_judgments") {
+    const data = await apiFetch("/api/v1/search", { method: "POST", body: args || {} });
     return toolResult(data);
   }
   throw new Error(`Unknown tool: ${name}`);

@@ -124,6 +124,20 @@ const TOOLS = [
       },
     },
   },
+  {
+    name: "browse_full_corpus",
+    description:
+      "全量裁判文書瀏覽(1.3億+ 真全量,非樣本):直連完整裁判文書庫,按省份(+案由)左前綴瀏覽最新判決,返回標題/案號/案由/法院/省份/審判程序/裁判日期 + 中國裁判文書網原文連結。與 search_judgments / search_cases(120萬樣本 + 關鍵詞/量化檢索)的區別:本工具打的是 1.3億全量庫。注意:按省份瀏覽快;加案由篩選當前較慢、可能超時(全文檢索與聚合統計正在開放中)。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        province: { type: "string", description: "省份左前綴,如 廣東/北京/上海(建議必傳,查詢快)" },
+        cause: { type: "string", description: "案由左前綴,如 機動車交通事故/勞動/民間借貸(可選;當前較慢)" },
+        page: { type: "number", description: "頁碼,默認 1" },
+        pageSize: { type: "number", description: "每頁條數,默認 20,最多 100" },
+      },
+    },
+  },
 ];
 
 function toolResult(data) {
@@ -167,6 +181,17 @@ async function handleTool(name, args) {
   }
   if (name === "search_judgments") {
     const data = await apiFetch("/api/v1/search", { method: "POST", body: args || {} });
+    return toolResult(data);
+  }
+  if (name === "browse_full_corpus") {
+    const a = args || {};
+    if (!a.province && !a.cause) throw new Error("province 或 cause 至少傳一個(左前綴匹配)");
+    const qs = new URLSearchParams();
+    if (a.province) qs.set("province", String(a.province));
+    if (a.cause) qs.set("cause", String(a.cause));
+    if (a.page) qs.set("page", String(a.page));
+    if (a.pageSize) qs.set("pageSize", String(a.pageSize));
+    const data = await apiFetch(`/api/v1/judgements?${qs.toString()}`);
     return toolResult(data);
   }
   throw new Error(`Unknown tool: ${name}`);

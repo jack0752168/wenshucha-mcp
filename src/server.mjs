@@ -138,6 +138,39 @@ const TOOLS = [
       },
     },
   },
+  {
+    name: "search_judgments_full",
+    description:
+      "全量類案檢索(1.3億+ 真全量):按關鍵詞(標題)+ 省份 + 案由 + 法院 + 年份範圍跨集合檢索,返回標題/案號/案由/法院/省份/審判程序/裁判日期 + 判決全文 + 原文連結。比 browse_full_corpus 多了關鍵詞/法院/年份過濾且返回判決全文。建議配合省份或案由縮小範圍(純關鍵詞較慢)。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        q: { type: "string", description: "標題關鍵詞,如 工商銀行/房屋買賣/張某" },
+        province: { type: "string", description: "省份,如 廣東/北京" },
+        cause: { type: "string", description: "案由左前綴,如 民間借貸/勞動" },
+        court: { type: "string", description: "法院名稱片段" },
+        yearFrom: { type: "number", description: "判決年份起,如 2021" },
+        yearTo: { type: "number", description: "判決年份止,如 2023" },
+        page: { type: "number" },
+        pageSize: { type: "number", description: "默認 20,最多 50" },
+      },
+    },
+  },
+  {
+    name: "case_analytics",
+    description:
+      "案件大數據統計(對標法寶「案件大數據」):基於 4580萬+ 標準化裁判文書(2020-2023)的分布。dim=cause(案由分布)/province(地域分布)/year(年份趨勢)/court(法院排行),可疊加 province / cause / 年份過濾。返回 [{key,count}]。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        dim: { type: "string", enum: ["cause", "province", "year", "court"], description: "統計維度", default: "cause" },
+        province: { type: "string", description: "省份過濾(可選)" },
+        cause: { type: "string", description: "案由過濾(可選,前綴)" },
+        yearFrom: { type: "number" },
+        yearTo: { type: "number" },
+      },
+    },
+  },
 ];
 
 function toolResult(data) {
@@ -192,6 +225,26 @@ async function handleTool(name, args) {
     if (a.page) qs.set("page", String(a.page));
     if (a.pageSize) qs.set("pageSize", String(a.pageSize));
     const data = await apiFetch(`/api/v1/judgements?${qs.toString()}`);
+    return toolResult(data);
+  }
+  if (name === "search_judgments_full") {
+    const a = args || {};
+    if (!a.q && !a.province && !a.cause && !a.court) throw new Error("至少傳 q/province/cause/court 之一");
+    const qs = new URLSearchParams();
+    ["q", "province", "cause", "court", "yearFrom", "yearTo", "page", "pageSize"].forEach((k) => {
+      if (a[k] !== undefined && a[k] !== "") qs.set(k, String(a[k]));
+    });
+    const data = await apiFetch(`/api/v1/fulltext?${qs.toString()}`);
+    return toolResult(data);
+  }
+  if (name === "case_analytics") {
+    const a = args || {};
+    const qs = new URLSearchParams();
+    qs.set("dim", String(a.dim || "cause"));
+    ["province", "cause", "yearFrom", "yearTo"].forEach((k) => {
+      if (a[k] !== undefined && a[k] !== "") qs.set(k, String(a[k]));
+    });
+    const data = await apiFetch(`/api/analytics?${qs.toString()}`);
     return toolResult(data);
   }
   throw new Error(`Unknown tool: ${name}`);

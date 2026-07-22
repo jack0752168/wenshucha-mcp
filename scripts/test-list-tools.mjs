@@ -69,11 +69,28 @@ setTimeout(() => {
     process.exit(1);
   }
   const names = listResp.result.tools.map((t) => t.name).sort();
-  const expected = ["case_stats", "get_case", "search_cases"];
+  // 加 tool 時必須同步改這裡。2026-07-22 前這份清單還停在最初的 3 個,
+  // 而 server 早已有 7 個 —— 唯一的冒煙測試紅了三個 commit 沒人發現。
+  const expected = [
+    "browse_full_corpus",
+    "case_analytics",
+    "case_stats",
+    "get_case",
+    "search_cases",
+    "search_judgments",
+    "search_judgments_full",
+  ];
   if (JSON.stringify(names) !== JSON.stringify(expected)) {
     console.error("FAIL: tool names mismatch:", names);
+    console.error("      expected:", expected);
     process.exit(1);
   }
-  console.log("OK: MCP server starts and lists 3 tools:", names.join(", "));
+  // description 是 AI 助手選工具的唯一依據,空描述等於這個 tool 不存在。
+  const noDesc = listResp.result.tools.filter((t) => !t.description || t.description.length < 20);
+  if (noDesc.length) {
+    console.error("FAIL: tools missing/too-short description:", noDesc.map((t) => t.name));
+    process.exit(1);
+  }
+  console.log(`OK: MCP server starts and lists ${names.length} tools:`, names.join(", "));
   process.exit(0);
 }, 1500);

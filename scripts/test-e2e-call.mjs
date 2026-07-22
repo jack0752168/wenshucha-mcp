@@ -62,7 +62,22 @@ setTimeout(() => {
   });
 }, 1200);
 
-setTimeout(() => {
+// 原本固定等 3 秒就 kill —— 那是照 localhost:3030 假後端的速度定的。
+// 打生產 (tob.wenshucha.com) 時 search_cases 要十幾秒到數十秒,固定 3 秒必然拿不到
+// 響應而報「did not return stats」的假失敗。改成輪詢等齊兩個響應,最多等 90 秒。
+const DEADLINE_MS = 90_000;
+const startedAt = Date.now();
+const waitForBoth = setInterval(() => {
+  const got2 = responses.some((r) => r.id === 2);
+  const got3 = responses.some((r) => r.id === 3);
+  const timedOut = Date.now() - startedAt > DEADLINE_MS;
+  if (!((got2 && got3) || timedOut)) return;
+  clearInterval(waitForBoth);
+  if (timedOut) console.error(`(warn: 等滿 ${DEADLINE_MS / 1000}s 才收齊,上游偏慢)`);
+  finish();
+}, 500);
+
+function finish() {
   child.kill();
   const r2 = responses.find((r) => r.id === 2);
   const r3 = responses.find((r) => r.id === 3);
@@ -83,4 +98,4 @@ setTimeout(() => {
   console.log("\nSample search_cases excerpt:");
   console.log(r2.result.content[0].text.slice(0, 300));
   process.exit(0);
-}, 3000);
+}

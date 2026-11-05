@@ -14,6 +14,12 @@
 
 当前服务已提供全案由词汇检索与库内正文读取，并非仅能浏览劳动争议样本。检索使用 BM25，不是向量语义检索。
 
+## 法律 AI 生成的案号和判词引用，如何用 MCP 工具核验？
+
+先用 `verify_case_number({caseNo})` 检查本库命中，再用 `get_judgment({caseNo})` 读取可用正文，最后传同一 `caseNo` 与实际 `quote` 给 `verify_quote` 辅助匹配。未命中不等于伪造，匹配不等于法律观点正确，错误或超时不能记为通过。
+
+[真实参数、正例与两个反例](docs/citation-verification.md)记录 2026-11-05 正式端点实际返回的 `exists`、`verified`、`not_found`、`not_in_this_case`。该测试用于验证工具链路，不是实体裁判判断或准确率评测。
+
 ## 四个现行工具
 
 | 工具 | 用途与边界 |

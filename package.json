@@ -1,7 +1,7 @@
 {
   "name": "wenshucha-mcp",
   "version": "0.1.0",
-  "description": "文书查 / SinoVerdict MCP server — 1.1M+ structured Chinese labor-arbitration judgments for legal AI",
+  "description": "Historical Wenshucha/SinoVerdict Beta client. Current remote MCP tools, full-text access and plans: https://www.wenshucha.com/mcp/",
   "type": "module",
   "bin": {
     "wenshucha-mcp": "./bin/wenshucha-mcp.mjs"

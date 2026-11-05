@@ -91,6 +91,28 @@
 }
 ```
 
+## HTTP 200 不等于核验成功：实际错误反例
+
+2026-11-05 向正式 MCP 端点调用 `verify_quote({"quote":"短"})`。HTTP 返回 **200**，但 JSON-RPC `result.isError` 为 **true**，返回如下（非正文、无当事人信息）：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "isError": true,
+    "content": [
+      {
+        "type": "text",
+        "text": "引文太短（至少 6 个字），无法可靠核验。（本次已退还额度）"
+      }
+    ]
+  }
+}
+```
+
+这是工具参数错误，不是 `not_found`，也不是 `verified`。先检查 JSON-RPC 顶层错误及 `result.isError`，再读取正常业务结果。错误内容可能是普通文本，不能无条件把 `content[0].text` 当作带 verdict 的 JSON 解析。实际返回说明本次已退还额度；不要据此推断所有 HTTP 200 均成功或所有错误均同一种形态。
+
 ## 返回值如何解释
 
 | 返回 | 含义 | 处置 |

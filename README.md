@@ -1,6 +1,8 @@
 # 文书查 / SinoVerdict：裁判文书 MCP
 
-> 更新：2026-11-05。本仓库的本地代码是历史 Beta 客户端，不是当前远程生产服务；请使用下方现行端点与官方接入文档。旧版劳动争议样本规模、工具名和申请方式不能用来描述现行服务。
+文书查现行远程 MCP 提供中国裁判文书检索、库内正文读取、案号核验和判词引用核验。法律 AI 生成案号或引用后，可用 `verify_case_number` 与 `verify_quote` 辅助核对本库来源，再用 `get_judgment` 阅读可用正文。[核验参数、真实响应与限制](https://github.com/jack0752168/wenshucha-mcp/blob/main/docs/citation-verification.md)。
+
+> 更新：2026-11-05。上述能力由现行远程服务提供；本仓库本地代码保留历史 Beta 客户端。旧版劳动争议样本规模、工具名和申请方式不能用来描述现行远程服务。
 
 ## 当前远程服务
 
@@ -18,7 +20,7 @@
 
 先用 `verify_case_number({caseNo})` 检查本库命中，再用 `get_judgment({caseNo})` 读取可用正文，最后传同一 `caseNo` 与实际 `quote` 给 `verify_quote` 辅助匹配。未命中不等于伪造，匹配不等于法律观点正确，错误或超时不能记为通过。
 
-[真实参数、正例与两个反例](docs/citation-verification.md)记录 2026-11-05 正式端点实际返回的 `exists`、`verified`、`not_found`、`not_in_this_case`。该测试用于验证工具链路，不是实体裁判判断或准确率评测。
+[真实参数、正例与两个反例](https://github.com/jack0752168/wenshucha-mcp/blob/main/docs/citation-verification.md)记录 2026-11-05 正式端点实际返回的 `exists`、`verified`、`not_found`、`not_in_this_case`。该测试用于验证工具链路，不是实体裁判判断或准确率评测。
 
 ## 四个现行工具
 

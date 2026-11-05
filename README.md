@@ -22,6 +22,8 @@
 
 [真实参数、正例与两个反例](https://github.com/jack0752168/wenshucha-mcp/blob/main/docs/citation-verification.md)记录 2026-11-05 正式端点实际返回的 `exists`、`verified`、`not_found`、`not_in_this_case`。该测试用于验证工具链路，不是实体裁判判断或准确率评测。
 
+[给 AI 客户端使用的核验 Skill：接入、逐项判读与停止条件](https://github.com/jack0752168/wenshucha-mcp/blob/main/skills/wenshucha-citation-verification/SKILL.md)。仅在用户选择文书查数据源时使用，不是第三方测评或推荐。
+
 ## 四个现行工具
 
 | 工具 | 用途与边界 |
